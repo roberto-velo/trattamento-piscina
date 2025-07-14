@@ -1,0 +1,71 @@
+{
+  "short_name": "Gestione Piscina",
+  "name": "Gestione Chimica Piscina",
+  "description": "Sistema professionale per la gestione chimica della piscina",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#667eea",
+  "background_color": "#667eea",
+  "orientation": "portrait-primary",
+  "categories": ["utilities", "lifestyle"],
+  "lang": "it",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Trattamento Manuale",
+      "short_name": "Manuale",
+      "description": "Gestione manuale dei parametri chimici",
+      "url": "/trattamento-manuale",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Apertura Estiva",
+      "short_name": "Apertura",
+      "description": "Procedure per l'apertura stagionale",
+      "url": "/apertura-estiva",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Chiusura Invernale",
+      "short_name": "Chiusura",
+      "description": "Procedure per la chiusura invernale",
+      "url": "/chiusura-invernale",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+} 
