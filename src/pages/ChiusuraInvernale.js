@@ -169,8 +169,8 @@ const ChiusuraInvernale = () => {
 
     // Cloro granulare shock: calcolo basato su target 3-5 ppm per chiusura
     let cloroShock = 0;
-    if (cloro > 0 && cloro < 3) {
-      cloroShock = (4 - cloro) * 12 * volume; // 12 g per litro per aumentare di 1 ppm
+    if (cloro >= 0 && cloro < 3) {
+      cloroShock = (4 - cloro) * 12 * volume / 1000; // 12 g per litro per aumentare di 1 ppm, convertito in kg
     }
     let phPlus = 0;
     let phMinus = 0;
@@ -794,7 +794,7 @@ const ChiusuraInvernale = () => {
                     Cloro Granulare Shock
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#f57c00' }}>
-                    {Math.round(dosages.cloroShock * 100) / 100} g
+                    {Math.round(dosages.cloroShock * 100) / 100} kg
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Per protezione invernale (12g/mc)
