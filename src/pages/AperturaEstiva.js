@@ -169,7 +169,7 @@ const AperturaEstiva = () => {
     // Cloro granulare shock: calcolo basato su target 3-5 ppm per apertura
     let cloroShock = 0;
     if (cloro >= 0 && cloro < 3) {
-      cloroShock = (4 - cloro) * 20 * volume / 1000; // 20 g/mc per 1 ppm, convertito in kg
+      cloroShock = 30 * volume / 1000; // 30 g/mc per trattamento shock, convertito in kg
     }
     
     let phPlus = 0;
@@ -795,7 +795,7 @@ const AperturaEstiva = () => {
                     {Math.round(dosages.cloroShock * 100) / 100} kg
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Per disinfezione iniziale (15g/mc)
+                    Per disinfezione iniziale (30g/mc)
                   </Typography>
                 </Card>
               </Grid>

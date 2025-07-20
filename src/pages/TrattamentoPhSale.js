@@ -152,7 +152,7 @@ const TrattamentoPhSale = () => {
     if (cloro >= 0) {
       if (cloro < 1) {
         problemi.push('Cloro insufficiente');
-        const cloroNecessario = (1 - cloro) * 20 * volume / 1000; // 20 g/mc per 1 ppm, convertito in kg
+        const cloroNecessario = (1 - cloro) * 10 * volume / 1000; // 10 g/mc per 1 ppm, convertito in kg
         correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round(cloroNecessario * 100) / 100} kg di cloro granulare per portare a 1 ppm`);
         problemiBagnanti.push('Rischio di infezioni batteriche');
         problemiPiscina.push('Formazione di alghe');
