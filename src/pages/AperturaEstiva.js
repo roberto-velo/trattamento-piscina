@@ -169,7 +169,7 @@ const AperturaEstiva = () => {
     // Cloro granulare shock: calcolo basato su target 3-5 ppm per apertura
     let cloroShock = 0;
     if (cloro >= 0 && cloro < 3) {
-      cloroShock = (4 - cloro) * 16 * volume / 1000; // 16 g per litro per aumentare di 1 ppm, convertito in kg
+      cloroShock = (4 - cloro) * 70 * volume / 1000; // 70 g per litro per aumentare di 1 ppm, convertito in kg
     }
     
     let phPlus = 0;
