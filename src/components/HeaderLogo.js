@@ -16,17 +16,14 @@ const HeaderLogo = () => (
     marginBottom: '12px'
   }}>
     <img
-      src="/IMG_4054.PNG"
+      src={process.env.PUBLIC_URL ? process.env.PUBLIC_URL + "/IMG_4054.PNG" : "/IMG_4054.PNG"}
       alt="Metra Composite Materials Logo"
       style={{
-        maxWidth: '400px',
-        width: '90%',
+        maxWidth: '600px',
+        width: '95%',
         height: 'auto',
-        display: 'block',
-        objectFit: 'contain',
-        margin: '0 auto',
-        borderRadius: '16px',
-        filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3)) drop-shadow(0 3px 6px rgba(25,118,210,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
+        borderRadius: '20px',
+        filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3)) drop-shadow(0 4px 8px rgba(25,118,210,0.2)) drop-shadow(0 2px 4px rgba(0,0,0,0.15))'
       }}
     />
   </div>

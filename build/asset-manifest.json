@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/trattamento-chimico-acqua/static/css/main.2614d9db.css",
-    "main.js": "/trattamento-chimico-acqua/static/js/main.b67e9a65.js",
-    "index.html": "/trattamento-chimico-acqua/index.html",
-    "main.2614d9db.css.map": "/trattamento-chimico-acqua/static/css/main.2614d9db.css.map",
-    "main.b67e9a65.js.map": "/trattamento-chimico-acqua/static/js/main.b67e9a65.js.map"
+    "main.css": "./static/css/main.2614d9db.css",
+    "main.js": "./static/js/main.ba583b2f.js",
+    "index.html": "./index.html",
+    "main.2614d9db.css.map": "./static/css/main.2614d9db.css.map",
+    "main.ba583b2f.js.map": "./static/js/main.ba583b2f.js.map"
   },
   "entrypoints": [
     "static/css/main.2614d9db.css",
-    "static/js/main.b67e9a65.js"
+    "static/js/main.ba583b2f.js"
   ]
 }

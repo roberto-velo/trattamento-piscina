@@ -121,7 +121,7 @@ const TrattamentoManuale = () => {
                   <Grid item xs={6}>
                     <TextField
                       fullWidth
-                      label="Cloro (mg/l)"
+                      label="Cloro (ppm)"
                       type="number"
                       value={formData.cloro}
                       onChange={(e) => handleInputChange('cloro', e.target.value)}
@@ -159,7 +159,7 @@ const TrattamentoManuale = () => {
                       value={formData.stabilizzatore}
                       onChange={(e) => handleInputChange('stabilizzatore', e.target.value)}
                       inputProps={{ min: 0 }}
-                      helperText="Valore ideale: 30-80"
+                      helperText="Valore ideale: 20-80"
                     />
                   </Grid>
                   <Grid item xs={6}>
@@ -213,7 +213,7 @@ const TrattamentoManuale = () => {
                     severity={getCloroStatus(formData.cloro).color}
                     sx={{ mb: 2 }}
                   >
-                    Cloro: {formData.cloro} mg/l - {getCloroStatus(formData.cloro).status}
+                    Cloro: {formData.cloro} ppm - {getCloroStatus(formData.cloro).status}
                   </Alert>
                 )}
                 {formData.alcalinita && (
@@ -256,7 +256,7 @@ const TrattamentoManuale = () => {
                         {entry.timestamp}
                       </Typography>
                       <Typography variant="body2">
-                        pH: {entry.ph} | Cloro: {entry.cloro} mg/l | 
+                        pH: {entry.ph} | Cloro: {entry.cloro} ppm | 
                         Alcalinità: {entry.alcalinita} mg/l | 
                         Durezza: {entry.durezza} mg/l
                       </Typography>

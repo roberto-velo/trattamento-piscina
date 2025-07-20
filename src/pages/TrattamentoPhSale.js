@@ -20,7 +20,7 @@ import {
   Tooltip
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ArrowBack, Science, TrendingUp, Warning, CheckCircle, Save, Settings, Pool } from '@mui/icons-material';
+import { ArrowBack, Science, TrendingUp, Warning, CheckCircle, Save, Settings, Pool, History } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import HeaderLogo from '../components/HeaderLogo';
 import MenuItem from '@mui/material/MenuItem';
@@ -42,6 +42,9 @@ const TrattamentoPhSale = () => {
   const [analisi, setAnalisi] = useState(null);
   const [storico, setStorico] = useState([]);
   const [vasca, setVasca] = useState('privata');
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('info');
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -56,7 +59,10 @@ const TrattamentoPhSale = () => {
 
   const analizzaAcqua = () => {
     if (!formData.volume || formData.volume <= 0) {
-      alert('Inserisci un volume valido della piscina (obbligatorio)');
+      setShowAlert(true);
+      setAlertMessage('Inserisci un volume valido della piscina (obbligatorio)');
+      setAlertSeverity('error');
+      setTimeout(() => setShowAlert(false), 4000);
       return;
     }
 
@@ -73,41 +79,41 @@ const TrattamentoPhSale = () => {
     let limiti = {
       ph: [7.2, 7.6],
       cloro: [1.0, 3.0],
-      sale: [3000, 5000],
+      sale: [3, 5],
       redox: [650, 850],
-      alcalinita: [80, 200],
-      tac: [80, 150],
-      acidoCianurico: [20, 100]
+      alcalinita: [80, 120],
+      tac: [80, 120],
+      acidoCianurico: [20, 80]
     };
     if (vasca === 'pubblica') {
       limiti = {
         ph: [6.5, 7.5],
         cloro: [1.0, 1.5],
-        sale: [3000, 5000],
+        sale: [3, 5],
         redox: [750, 900],
-        alcalinita: [80, 200],
-        tac: [80, 150],
-        acidoCianurico: [0, 75]
+        alcalinita: [80, 120],
+        tac: [80, 120],
+        acidoCianurico: [0, 80]
       };
     } else if (vasca === 'fontana_giochi') {
       limiti = {
         ph: [6.5, 7.5],
         cloro: [1.0, 2.0],
-        sale: [3000, 5000],
+        sale: [3, 5],
         redox: [750, 900],
-        alcalinita: [80, 200],
-        tac: [80, 150],
-        acidoCianurico: [0, 75]
+        alcalinita: [80, 120],
+        tac: [80, 120],
+        acidoCianurico: [0, 80]
       };
     } else if (vasca === 'fontana') {
       limiti = {
         ph: [6.5, 8.0],
         cloro: [0.2, 1.0],
-        sale: [3000, 5000],
+        sale: [3, 5],
         redox: [600, 900],
-        alcalinita: [80, 200],
-        tac: [80, 150],
-        acidoCianurico: [0, 75]
+        alcalinita: [80, 120],
+        tac: [80, 120],
+        acidoCianurico: [0, 80]
       };
     }
 
@@ -117,67 +123,67 @@ const TrattamentoPhSale = () => {
     const problemiBagnanti = [];
     const problemiPiscina = [];
 
-    // Calcolo pH con pH polvere
+    // Calcolo pH con pH polvere (target: 7.3)
     let phPlus = 0;
     let phMinus = 0;
     if (ph > 0) {
-      if (ph < limiti.ph[0]) {
+      if (ph < 7.3) {
         // pH+ polvere: 10g per mc per aumentare di 0.1
-        phPlus = (limiti.ph[0] - ph) * 0.1 * volume;
+        phPlus = (7.3 - ph) * 0.1 * volume;
         problemi.push('pH troppo basso (acido)');
-        correzioni.push(`Aggiungere ${Math.round(phPlus * 100) / 100} kg di pH+ polvere (carbonato di sodio)`);
+        correzioni.push(`Aggiungere ${Math.round(phPlus * 100) / 100} kg di pH+ polvere (carbonato di sodio) per portare a 7.3`);
         problemiBagnanti.push('Irritazione agli occhi e alla pelle');
         problemiPiscina.push('Corrosione delle parti metalliche');
-      } else if (ph > limiti.ph[1]) {
+      } else if (ph > 7.3) {
         // pH- polvere: 10g per mc per diminuire di 0.1
-        phMinus = (ph - limiti.ph[1]) * 0.1 * volume;
+        phMinus = (ph - 7.3) * 0.1 * volume;
         problemi.push('pH troppo alto (basico)');
-        correzioni.push(`Aggiungere ${Math.round(phMinus * 100) / 100} kg di pH- polvere (acido muriatico)`);
+        correzioni.push(`Aggiungere ${Math.round(phMinus * 100) / 100} kg di pH- polvere (acido muriatico) per portare a 7.3`);
         problemiBagnanti.push('Formazione di incrostazioni sulla pelle');
         problemiPiscina.push('Formazione di calcare');
       }
     }
 
-    // Analisi Cloro
+    // Analisi Cloro (target: 1 ppm)
     if (cloro > 0) {
-      if (cloro < limiti.cloro[0]) {
+      if (cloro < 1) {
         problemi.push('Cloro insufficiente');
-        correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round((limiti.cloro[1] - cloro) * 0.2 * volume * 100) / 100} kg di cloro granulare`);
+        correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round((1 - cloro) * 0.2 * volume * 100) / 100} kg di cloro granulare per portare a 1 ppm`);
         problemiBagnanti.push('Rischio di infezioni batteriche');
         problemiPiscina.push('Formazione di alghe');
-      } else if (cloro > limiti.cloro[1]) {
+      } else if (cloro > 1) {
         problemi.push('Cloro troppo alto');
-        correzioni.push('Ridurre la produzione di cloro dalla cella elettrolitica');
+        correzioni.push('Ridurre la produzione di cloro dalla cella elettrolitica per portare a 1 ppm');
         problemiBagnanti.push('Irritazione agli occhi e alle vie respiratorie');
         problemiPiscina.push('Deterioramento dei materiali');
       }
     }
 
-    // Analisi Sale
+    // Analisi Sale (target: 4 kg/m³)
     if (sale > 0) {
-      if (sale < limiti.sale[0]) {
+      if (sale < 4) {
         problemi.push('Concentrazione sale insufficiente');
-        correzioni.push(`Aggiungere ${Math.round((limiti.sale[1] - sale) * 0.001 * volume * 100) / 100} kg di sale per elettrolisi`);
+        correzioni.push(`Aggiungere ${Math.round((4 - sale) * volume * 100) / 100} kg di sale per elettrolisi per portare a 4 kg/m³`);
         problemiBagnanti.push('Ridotta produzione di cloro');
         problemiPiscina.push('Inefficienza della cella elettrolitica');
-      } else if (sale > limiti.sale[1]) {
+      } else if (sale > 4) {
         problemi.push('Concentrazione sale troppo alta');
-        correzioni.push('Sostituire parzialmente l\'acqua della piscina');
+        correzioni.push('Sostituire parzialmente l\'acqua della piscina per portare a 4 kg/m³');
         problemiBagnanti.push('Sapore salato eccessivo');
         problemiPiscina.push('Corrosione accelerata delle parti metalliche');
       }
     }
 
-    // Analisi REDOX
+    // Analisi REDOX (target: 700 mV)
     if (redox > 0) {
-      if (redox < limiti.redox[0]) {
+      if (redox < 700) {
         problemi.push('Potenziale REDOX troppo basso');
-        correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round((limiti.redox[1] - redox) * 0.1 * volume * 100) / 100} kg di sale`);
+        correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round((700 - redox) * 0.1 * volume * 100) / 100} kg di sale per portare a 700 mV`);
         problemiBagnanti.push('Rischio di infezioni batteriche e virali');
         problemiPiscina.push('Formazione di biofilm e alghe');
-      } else if (redox > limiti.redox[1]) {
+      } else if (redox > 700) {
         problemi.push('Potenziale REDOX troppo alto');
-        correzioni.push('Ridurre la produzione di cloro dalla cella elettrolitica');
+        correzioni.push('Ridurre la produzione di cloro dalla cella elettrolitica per portare a 700 mV');
         problemiBagnanti.push('Irritazione eccessiva agli occhi e alla pelle');
         problemiPiscina.push('Accelerazione del deterioramento dei materiali');
       }
@@ -243,10 +249,20 @@ const TrattamentoPhSale = () => {
 
   const salvaAnalisi = () => {
     if (analisi) {
-      const salvate = JSON.parse(localStorage.getItem('analisiPhSale') || '[]');
-      salvate.push(analisi);
-      localStorage.setItem('analisiPhSale', JSON.stringify(salvate));
-      alert('Analisi salvata con successo!');
+      try {
+        const salvate = JSON.parse(localStorage.getItem('analisiPhSale') || '[]');
+        salvate.push(analisi);
+        localStorage.setItem('analisiPhSale', JSON.stringify(salvate));
+        setShowAlert(true);
+        setAlertMessage('Analisi salvata con successo!');
+        setAlertSeverity('success');
+        setTimeout(() => setShowAlert(false), 4000);
+      } catch (error) {
+        setShowAlert(true);
+        setAlertMessage('Errore nel salvataggio dell\'analisi');
+        setAlertSeverity('error');
+        setTimeout(() => setShowAlert(false), 4000);
+      }
     }
   };
 
@@ -287,6 +303,20 @@ const TrattamentoPhSale = () => {
           <Pool sx={{ mr: 2, verticalAlign: 'middle' }} />
           Analisi Chimica Acqua
         </Typography>
+
+        {showAlert && (
+          <Alert 
+            severity={alertSeverity} 
+            sx={{ 
+              mb: 3,
+              borderRadius: 2,
+              fontSize: '1.1rem'
+            }}
+            onClose={() => setShowAlert(false)}
+          >
+            {alertMessage}
+          </Alert>
+        )}
 
         <Card sx={{ 
           mb: 4,
@@ -353,25 +383,25 @@ const TrattamentoPhSale = () => {
                 {vasca === 'privata' && (
                   <>
                     <Typography variant="body2">Normativa: <b>UNI 10637</b> (piscine private ad uso domestico)</Typography>
-                    <Typography variant="body2">pH: 7.2 - 7.6 | Cloro: 1.0 - 3.0 mg/l | Sale: 3000 - 5000 mg/l | REDOX: 650 - 850 mV</Typography>
+                    <Typography variant="body2">pH: 7.2 - 7.6 | Cloro: 1.0 - 3.0 ppm | Sale: 3 - 5 kg/m³ | REDOX: 650 - 850 mV</Typography>
                   </>
                 )}
                 {vasca === 'pubblica' && (
                   <>
                     <Typography variant="body2">Normativa: <b>DPR 59/2016</b> e <b>UNI 10637</b> (piscine pubbliche)</Typography>
-                    <Typography variant="body2">pH: 6.5 - 7.5 | Cloro: 1.0 - 1.5 mg/l | Sale: 3000 - 5000 mg/l | REDOX: 750 - 900 mV</Typography>
+                    <Typography variant="body2">pH: 6.5 - 7.5 | Cloro: 1.0 - 1.5 ppm | Sale: 3 - 5 kg/m³ | REDOX: 750 - 900 mV</Typography>
                   </>
                 )}
                 {vasca === 'fontana_giochi' && (
                   <>
                     <Typography variant="body2">Normativa: <b>DPR 59/2016</b> (fontane giochi d'acqua)</Typography>
-                    <Typography variant="body2">pH: 6.5 - 7.5 | Cloro: 1.0 - 2.0 mg/l | Sale: 3000 - 5000 mg/l | REDOX: 750 - 900 mV</Typography>
+                    <Typography variant="body2">pH: 6.5 - 7.5 | Cloro: 1.0 - 2.0 ppm | Sale: 3 - 5 kg/m³ | REDOX: 750 - 900 mV</Typography>
                   </>
                 )}
                 {vasca === 'fontana' && (
                   <>
                     <Typography variant="body2">Normativa: <b>DPR 59/2016</b> (fontane ornamentali)</Typography>
-                    <Typography variant="body2">pH: 6.5 - 8.0 | Cloro: 0.2 - 1.0 mg/l | Sale: 3000 - 5000 mg/l | REDOX: 600 - 900 mV</Typography>
+                    <Typography variant="body2">pH: 6.5 - 8.0 | Cloro: 0.2 - 1.0 ppm | Sale: 3 - 5 kg/m³ | REDOX: 600 - 900 mV</Typography>
                   </>
                 )}
               </Box>
@@ -427,12 +457,12 @@ const TrattamentoPhSale = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   fullWidth
-                  label="Cloro libero (mg/l)"
+                                      label="Cloro libero (ppm)"
                   type="number"
                   inputProps={{ step: 0.1, min: 0 }}
                   value={formData.cloro}
                   onChange={(e) => handleInputChange('cloro', e.target.value)}
-                  helperText="Valore ideale: 1.0-3.0"
+                  helperText="Valore ideale: 1.0-3.0 ppm"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -450,12 +480,12 @@ const TrattamentoPhSale = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   fullWidth
-                  label="Sale (mg/l)"
+                                      label="Sale (kg/m³)"
                   type="number"
-                  inputProps={{ step: 100, min: 0 }}
+                  inputProps={{ step: 0.1, min: 0 }}
                   value={formData.sale}
                   onChange={(e) => handleInputChange('sale', e.target.value)}
-                  helperText="Valore ideale: 3000-5000"
+                  helperText="Valore ideale: 3-5 kg/m³"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -501,7 +531,7 @@ const TrattamentoPhSale = () => {
                   inputProps={{ step: 10, min: 0 }}
                   value={formData.alcalinita}
                   onChange={(e) => handleInputChange('alcalinita', e.target.value)}
-                  helperText="Valore ideale: 80-200"
+                  helperText="Valore ideale: 80-120 mg/l"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -524,7 +554,7 @@ const TrattamentoPhSale = () => {
                   inputProps={{ step: 10, min: 0 }}
                   value={formData.tac}
                   onChange={(e) => handleInputChange('tac', e.target.value)}
-                  helperText="Valore ideale: 80-150"
+                  helperText="Valore ideale: 80-120 mg/l"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -547,7 +577,7 @@ const TrattamentoPhSale = () => {
                   inputProps={{ step: 5, min: 0 }}
                   value={formData.acidoCianurico}
                   onChange={(e) => handleInputChange('acidoCianurico', e.target.value)}
-                  helperText="Valore ideale: 20-100"
+                  helperText="Valore ideale: 20-80 mg/l"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -610,107 +640,298 @@ const TrattamentoPhSale = () => {
         {analisi && (
           <Card sx={{ 
             mb: 4,
-            borderRadius: 3,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            borderRadius: 6,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
             background: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            animation: 'slideInUp 0.8s ease-out',
+            '@keyframes slideInUp': {
+              '0%': { opacity: 0, transform: 'translateY(50px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' }
+            }
           }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="h5" gutterBottom sx={{ mb: 3, color: '#333' }}>
-                <CheckCircle sx={{ mr: 1, color: '#4caf50' }} />
-                Risultati Analisi - Volume: {analisi.volume} mc
-              </Typography>
+            <CardContent sx={{ p: 5 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                mb: 4,
+                background: 'linear-gradient(135deg, #667eea20, #764ba220)',
+                borderRadius: 4,
+                p: 3,
+                border: '1px solid rgba(102,126,234,0.1)'
+              }}>
+                <CheckCircle sx={{ mr: 2, color: '#4caf50', fontSize: 32 }} />
+                <Box>
+                  <Typography variant="h4" sx={{ 
+                    color: '#333', 
+                    fontWeight: 800,
+                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    Risultati Analisi
+                  </Typography>
+                  <Typography variant="h6" sx={{ color: '#666', fontWeight: 500 }}>
+                    Volume: {analisi.volume} mc
+                  </Typography>
+                </Box>
+              </Box>
 
               {analisi.problemi.length === 0 ? (
-                <Alert 
-                  severity="success" 
-                  sx={{ 
-                    mb: 3,
-                    borderRadius: 2,
-                    fontSize: '1.1rem'
-                  }}
-                >
-                  <CheckCircle sx={{ mr: 1 }} />
-                  Tutti i parametri sono nella norma! L'acqua è in perfette condizioni.
-                </Alert>
+                <Box sx={{ 
+                  background: 'linear-gradient(135deg, #4caf5020, #8bc34a20)', 
+                  borderRadius: 6, 
+                  p: 4, 
+                  mb: 4,
+                  border: '1px solid rgba(76,175,80,0.2)',
+                  animation: 'pulse 2s infinite',
+                  '@keyframes pulse': {
+                    '0%': { boxShadow: '0 0 0 0 rgba(76,175,80,0.4)' },
+                    '70%': { boxShadow: '0 0 0 10px rgba(76,175,80,0)' },
+                    '100%': { boxShadow: '0 0 0 0 rgba(76,175,80,0)' }
+                  }
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <CheckCircle sx={{ mr: 2, color: '#4caf50', fontSize: 28 }} />
+                    <Typography variant="h5" sx={{ color: '#4caf50', fontWeight: 700 }}>
+                      Perfetto! 🎉
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ 
+                    fontSize: '1.1rem',
+                    lineHeight: 1.8,
+                    color: '#333'
+                  }}>
+                    Tutti i parametri sono nella norma! L'acqua è in perfette condizioni per il nuoto.
+                  </Typography>
+                </Box>
               ) : (
-                <Alert 
-                  severity="warning" 
-                  sx={{ 
-                    mb: 3,
-                    borderRadius: 2,
-                    fontSize: '1.1rem'
-                  }}
-                >
-                  <Warning sx={{ mr: 1 }} />
-                  Trovati {analisi.problemi.length} problema/i da correggere
-                </Alert>
+                <Box sx={{ 
+                  background: 'linear-gradient(135deg, #ff980020, #ffc10720)', 
+                  borderRadius: 6, 
+                  p: 4, 
+                  mb: 4,
+                  border: '1px solid rgba(255,152,0,0.2)'
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Warning sx={{ mr: 2, color: '#ff9800', fontSize: 28 }} />
+                    <Typography variant="h5" sx={{ color: '#ff9800', fontWeight: 700 }}>
+                      Attenzione! ⚠️
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ 
+                    fontSize: '1.1rem',
+                    lineHeight: 1.8,
+                    color: '#333'
+                  }}>
+                    Trovati <b>{analisi.problemi.length}</b> problema/i da correggere per ottimizzare la qualità dell'acqua.
+                  </Typography>
+                </Box>
               )}
 
               {analisi.problemi.length > 0 && (
                 <>
-                  <Typography variant="h6" gutterBottom sx={{ mt: 3, mb: 2, color: '#d32f2f' }}>
-                    Problemi Rilevati
-                  </Typography>
-                  <Box sx={{ mb: 3 }}>
-                    {analisi.problemi.map((problema, index) => (
-                      <Chip
-                        key={index}
-                        label={problema}
-                        color="error"
-                        sx={{ 
-                          mr: 1, 
-                          mb: 1,
-                          borderRadius: 2,
-                          fontWeight: 'bold'
-                        }}
-                      />
-                    ))}
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h5" sx={{ 
+                      mb: 3, 
+                      color: '#d32f2f', 
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
+                    }}>
+                      <Box component="span" sx={{ 
+                        width: 12, 
+                        height: 12, 
+                        borderRadius: '50%', 
+                        background: '#d32f2f',
+                        display: 'inline-block'
+                      }} />
+                      Problemi Rilevati
+                    </Typography>
+                    <Box sx={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, 
+                      gap: 2 
+                    }}>
+                      {analisi.problemi.map((problema, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            background: 'linear-gradient(135deg, #ff572220, #f4433620)',
+                            borderRadius: 4,
+                            p: 3,
+                            border: '1px solid rgba(255,87,34,0.2)',
+                            transition: 'all 0.3s ease',
+                            animation: `slideInLeft 0.5s ease-out ${index * 0.1}s both`,
+                            '@keyframes slideInLeft': {
+                              '0%': { opacity: 0, transform: 'translateX(-30px)' },
+                              '100%': { opacity: 1, transform: 'translateX(0)' }
+                            },
+                            '&:hover': {
+                              transform: 'translateY(-3px)',
+                              boxShadow: '0 8px 25px rgba(255,87,34,0.2)'
+                            }
+                          }}
+                        >
+                          <Typography variant="body1" sx={{ 
+                            fontWeight: 600, 
+                            color: '#d32f2f',
+                            fontSize: '1rem'
+                          }}>
+                            {problema}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
                   </Box>
 
-                  <Typography variant="h6" gutterBottom sx={{ mb: 2, color: '#1976d2' }}>
-                    Correzioni Consigliate
-                  </Typography>
-                  <Box sx={{ mb: 3 }}>
-                    {analisi.correzioni.map((correzione, index) => (
-                      <Chip
-                        key={index}
-                        label={correzione}
-                        color="primary"
-                        sx={{ 
-                          mr: 1, 
-                          mb: 1,
-                          borderRadius: 2,
-                          fontWeight: 'bold'
-                        }}
-                      />
-                    ))}
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h5" sx={{ 
+                      mb: 3, 
+                      color: '#1976d2', 
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
+                    }}>
+                      <Box component="span" sx={{ 
+                        width: 12, 
+                        height: 12, 
+                        borderRadius: '50%', 
+                        background: '#1976d2',
+                        display: 'inline-block'
+                      }} />
+                      Correzioni Consigliate
+                    </Typography>
+                    <Box sx={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, 
+                      gap: 2 
+                    }}>
+                      {analisi.correzioni.map((correzione, index) => (
+                        <Box
+                          key={index}
+                          sx={{
+                            background: 'linear-gradient(135deg, #2196f320, #03a9f420)',
+                            borderRadius: 4,
+                            p: 3,
+                            border: '1px solid rgba(33,150,243,0.2)',
+                            transition: 'all 0.3s ease',
+                            animation: `slideInRight 0.5s ease-out ${index * 0.1}s both`,
+                            '@keyframes slideInRight': {
+                              '0%': { opacity: 0, transform: 'translateX(30px)' },
+                              '100%': { opacity: 1, transform: 'translateX(0)' }
+                            },
+                            '&:hover': {
+                              transform: 'translateY(-3px)',
+                              boxShadow: '0 8px 25px rgba(33,150,243,0.2)'
+                            }
+                          }}
+                        >
+                          <Typography variant="body1" sx={{ 
+                            fontWeight: 600, 
+                            color: '#1976d2',
+                            fontSize: '1rem'
+                          }}>
+                            {correzione}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
                   </Box>
                 </>
               )}
 
-              {analisi.problemiBagnanti.length > 0 && (
-                <Box sx={{ mt: 2, mb: 2 }}>
-                  <Typography variant="h6" sx={{ color: '#333', mb: 1 }}>
-                    Problemi per i Bagnanti
-                  </Typography>
-                  <ul style={{ margin: 0, paddingLeft: 20 }}>
-                    {analisi.problemiBagnanti.map((problema, index) => (
-                      <li key={index} style={{ marginBottom: 8 }}>{problema}</li>
-                    ))}
-                  </ul>
-                </Box>
-              )}
-              {analisi.problemiPiscina.length > 0 && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" sx={{ color: '#333', mb: 1 }}>
-                    Problemi per la Piscina
-                  </Typography>
-                  <ul style={{ margin: 0, paddingLeft: 20 }}>
-                    {analisi.problemiPiscina.map((problema, index) => (
-                      <li key={index} style={{ marginBottom: 8 }}>{problema}</li>
-                    ))}
-                  </ul>
+              {(analisi.problemiBagnanti.length > 0 || analisi.problemiPiscina.length > 0) && (
+                <Box sx={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, 
+                  gap: 4 
+                }}>
+                  {analisi.problemiBagnanti.length > 0 && (
+                    <Box sx={{ 
+                      background: 'linear-gradient(135deg, #ff980020, #ffc10720)', 
+                      borderRadius: 6, 
+                      p: 4,
+                      border: '1px solid rgba(255,152,0,0.2)',
+                      animation: 'fadeInUp 0.8s ease-out'
+                    }}>
+                      <Typography variant="h6" sx={{ 
+                        color: '#ff9800', 
+                        mb: 2, 
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}>
+                        <Box component="span" sx={{ 
+                          width: 8, 
+                          height: 8, 
+                          borderRadius: '50%', 
+                          background: '#ff9800',
+                          display: 'inline-block'
+                        }} />
+                        Problemi per i Bagnanti
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {analisi.problemiBagnanti.map((problema, index) => (
+                          <Typography key={index} variant="body2" sx={{ 
+                            color: '#666',
+                            padding: '8px 12px',
+                            background: 'rgba(255,255,255,0.5)',
+                            borderRadius: 3,
+                            borderLeft: '4px solid #ff9800'
+                          }}>
+                            {problema}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                  
+                  {analisi.problemiPiscina.length > 0 && (
+                    <Box sx={{ 
+                      background: 'linear-gradient(135deg, #9c27b020, #e91e6320)', 
+                      borderRadius: 6, 
+                      p: 4,
+                      border: '1px solid rgba(156,39,176,0.2)',
+                      animation: 'fadeInUp 0.8s ease-out 0.2s both'
+                    }}>
+                      <Typography variant="h6" sx={{ 
+                        color: '#9c27b0', 
+                        mb: 2, 
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}>
+                        <Box component="span" sx={{ 
+                          width: 8, 
+                          height: 8, 
+                          borderRadius: '50%', 
+                          background: '#9c27b0',
+                          display: 'inline-block'
+                        }} />
+                        Problemi per la Piscina
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {analisi.problemiPiscina.map((problema, index) => (
+                          <Typography key={index} variant="body2" sx={{ 
+                            color: '#666',
+                            padding: '8px 12px',
+                            background: 'rgba(255,255,255,0.5)',
+                            borderRadius: 3,
+                            borderLeft: '4px solid #9c27b0'
+                          }}>
+                            {problema}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
               )}
             </CardContent>
@@ -719,43 +940,148 @@ const TrattamentoPhSale = () => {
 
         {storico.length > 0 && (
           <Card sx={{ 
-            borderRadius: 3,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            borderRadius: 6,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
             background: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            animation: 'slideInUp 0.8s ease-out 0.3s both'
           }}>
-            <CardContent sx={{ p: 4 }}>
-              <Typography variant="h5" gutterBottom sx={{ mb: 3, color: '#333' }}>
-                Storico Misurazioni
-              </Typography>
-              {storico.map((item, index) => (
-                <Box 
-                  key={index} 
-                  sx={{ 
-                    mb: 2, 
-                    p: 3, 
-                    border: '1px solid #e0e0e0', 
-                    borderRadius: 2,
-                    backgroundColor: '#fafafa',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      backgroundColor: '#f5f5f5',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }
-                  }}
-                >
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                    {item.timestamp} - Volume: {item.volume} mc
-                  </Typography>
-                  <Typography variant="body2">
-                    pH: {item.parametri.ph || 'N/D'} | 
-                    Sale: {item.parametri.sale || 'N/D'} mg/l | 
-                    REDOX: {item.parametri.redox || 'N/D'} mV | 
-                    Alcalinità: {item.parametri.alcalinita || 'N/D'} mg/l
-                  </Typography>
-                </Box>
-              ))}
+            <CardContent sx={{ p: 5 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                mb: 4,
+                background: 'linear-gradient(135deg, #667eea20, #764ba220)',
+                borderRadius: 4,
+                p: 3,
+                border: '1px solid rgba(102,126,234,0.1)'
+              }}>
+                <History sx={{ mr: 2, color: '#667eea', fontSize: 32 }} />
+                <Typography variant="h4" sx={{ 
+                  color: '#333', 
+                  fontWeight: 800,
+                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  Storico Misurazioni
+                </Typography>
+              </Box>
+              
+              <Box sx={{ 
+                display: 'grid', 
+                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, 
+                gap: 3 
+              }}>
+                {storico.map((item, index) => (
+                  <Box 
+                    key={index} 
+                    sx={{ 
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.6))',
+                      borderRadius: 6, 
+                      p: 4, 
+                      border: '1px solid rgba(102,126,234,0.1)',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      animation: `slideInUp 0.6s ease-out ${index * 0.1}s both`,
+                      '&:hover': {
+                        transform: 'translateY(-8px) rotate(1deg)',
+                        boxShadow: '0 20px 40px rgba(102,126,234,0.2)',
+                        border: '1px solid rgba(102,126,234,0.3)'
+                      }
+                    }}
+                  >
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      mb: 2 
+                    }}>
+                      <Typography variant="subtitle1" sx={{ 
+                        color: '#667eea', 
+                        fontWeight: 700,
+                        fontSize: '0.9rem'
+                      }}>
+                        {item.timestamp}
+                      </Typography>
+                      <Box sx={{ 
+                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        color: 'white',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: 3,
+                        fontSize: '0.8rem',
+                        fontWeight: 600
+                      }}>
+                        {item.volume} mc
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: '1fr 1fr', 
+                      gap: 2 
+                    }}>
+                      <Box sx={{ 
+                        background: 'rgba(102,126,234,0.1)', 
+                        p: 2, 
+                        borderRadius: 4,
+                        textAlign: 'center'
+                      }}>
+                        <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
+                          pH
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#333' }}>
+                          {item.parametri.ph || 'N/D'}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ 
+                        background: 'rgba(76,175,80,0.1)', 
+                        p: 2, 
+                        borderRadius: 4,
+                        textAlign: 'center'
+                      }}>
+                        <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
+                          Sale
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#333' }}>
+                          {item.parametri.sale || 'N/D'} kg/m³
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ 
+                        background: 'rgba(255,152,0,0.1)', 
+                        p: 2, 
+                        borderRadius: 4,
+                        textAlign: 'center'
+                      }}>
+                        <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
+                          REDOX
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#333' }}>
+                          {item.parametri.redox || 'N/D'} mV
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ 
+                        background: 'rgba(156,39,176,0.1)', 
+                        p: 2, 
+                        borderRadius: 4,
+                        textAlign: 'center'
+                      }}>
+                        <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>
+                          Alcalinità
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: '#333' }}>
+                          {item.parametri.alcalinita || 'N/D'} mg/l
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
             </CardContent>
           </Card>
         )}

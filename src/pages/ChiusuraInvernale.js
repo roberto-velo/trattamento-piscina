@@ -162,32 +162,43 @@ const ChiusuraInvernale = () => {
   const calculateDosages = () => {
     const volume = parseFloat(waterData.volume) || 0;
     const ph = parseFloat(waterData.ph) || 0;
+    const cloro = parseFloat(waterData.cloro) || 0;
+    const sale = parseFloat(waterData.sale) || 0;
     const tac = parseFloat(waterData.tac) || 0;
     const acidoCianurico = parseFloat(waterData.acidoCianurico) || 0;
 
-    // Cloro granulare shock: 12g per mc per chiusura (più concentrato del generico)
-    let cloroShock = volume * 0.012;
+    // Cloro granulare shock: calcolo basato su target 3-5 ppm per chiusura
+    let cloroShock = 0;
+    if (cloro > 0 && cloro < 3) {
+      cloroShock = (4 - cloro) * 0.2 * volume; // 0.2 kg per mc per aumentare di 1 ppm
+    }
     let phPlus = 0;
     let phMinus = 0;
     let alcalinitaPlus = 0;
+    let salePlus = 0;
     let antigelo = volume * 0.001; // 1kg per mc
     let copertura = '';
 
-    // Calcolo pH per chiusura con pH polvere (leggermente più alto)
+    // Calcolo pH per chiusura con pH polvere (target: 7.3)
     if (ph > 0) {
-      if (ph < 7.4) {
+      if (ph < 7.3) {
         // pH+ polvere: 10g per mc per aumentare di 0.1
-        phPlus = (7.6 - ph) * 0.1 * volume;
-      } else if (ph > 7.8) {
+        phPlus = (7.3 - ph) * 0.1 * volume;
+      } else if (ph > 7.3) {
         // pH- polvere: 10g per mc per diminuire di 0.1
-        phMinus = (ph - 7.6) * 0.1 * volume;
+        phMinus = (ph - 7.3) * 0.1 * volume;
       }
     }
 
-    // Calcolo TAC (alcalinità) con bicarbonato granulare
+    // Calcolo TAC (alcalinità) con bicarbonato granulare (target: 100 mg/l)
     if (tac > 0 && tac < 100) {
       // Bicarbonato granulare: 1.5g per mc per aumentare di 10 mg/l
-      alcalinitaPlus = (140 - tac) * 0.0015 * volume;
+      alcalinitaPlus = (100 - tac) * 0.0015 * volume;
+    }
+
+    // Calcolo sale (target: 4 kg/m³)
+    if (sale > 0 && sale < 4) {
+      salePlus = (4 - sale) * volume; // kg di sale da aggiungere
     }
 
     // Tipo di copertura in base al volume
@@ -204,6 +215,7 @@ const ChiusuraInvernale = () => {
       phPlus: Math.round(phPlus * 100) / 100,
       phMinus: Math.round(phMinus * 100) / 100,
       alcalinitaPlus: Math.round(alcalinitaPlus * 100) / 100,
+      salePlus: Math.round(salePlus * 100) / 100,
       antigelo: Math.round(antigelo * 100) / 100,
       copertura
     });
@@ -223,31 +235,31 @@ const ChiusuraInvernale = () => {
     const acidoCianurico = parseFloat(waterData.acidoCianurico);
 
     if (ph > 0) {
-      if (ph < 7.4) {
+      if (ph < 7.2) {
         newAdvice.push({
           type: 'warning',
-          message: 'pH troppo basso per chiusura. Aggiungere pH+ per portare il valore tra 7.4-7.8'
+          message: 'pH troppo basso per chiusura. Aggiungere pH+ per portare il valore a 7.3'
         });
-      } else if (ph > 7.8) {
+      } else if (ph > 7.4) {
         newAdvice.push({
           type: 'warning',
-          message: 'pH troppo alto per chiusura. Aggiungere pH- per portare il valore tra 7.4-7.8'
+          message: 'pH troppo alto per chiusura. Aggiungere pH- per portare il valore a 7.3'
         });
       } else {
         newAdvice.push({
           type: 'success',
-          message: 'pH nella norma per chiusura (7.4-7.8)'
+          message: 'pH nella norma per chiusura (7.2-7.4)'
         });
       }
     }
 
     if (tac > 0) {
-      if (tac < 100) {
+      if (tac < 80) {
         newAdvice.push({
           type: 'warning',
-          message: 'TAC troppo bassa per chiusura. Aggiungere alcalinità+ per portare il valore tra 100-200 mg/l'
+          message: 'TAC troppo bassa per chiusura. Aggiungere alcalinità+ per portare il valore tra 80-120 mg/l'
         });
-      } else if (tac > 200) {
+      } else if (tac > 120) {
         newAdvice.push({
           type: 'warning',
           message: 'TAC troppo alta. Considerare l\'uso di pH- per ridurre'
@@ -255,7 +267,7 @@ const ChiusuraInvernale = () => {
       } else {
         newAdvice.push({
           type: 'success',
-          message: 'TAC nella norma per chiusura (100-200 mg/l)'
+          message: 'TAC nella norma per chiusura (80-120 mg/l)'
         });
       }
     }
@@ -280,31 +292,31 @@ const ChiusuraInvernale = () => {
     }
 
     if (cloro > 0) {
-      if (cloro < 1) {
+      if (cloro < 2) {
         newAdvice.push({
           type: 'warning',
-          message: 'Cloro libero basso. Aggiungere cloro shock per protezione invernale'
+          message: 'Cloro shock insufficiente per chiusura. Aggiungere cloro shock per portare il valore a 3-5 ppm'
         });
-      } else if (cloro > 5) {
+      } else if (cloro > 6) {
         newAdvice.push({
           type: 'warning',
-          message: 'Cloro libero troppo alto. Attendere che scenda prima di procedere'
+          message: 'Cloro shock troppo alto. Attendere che scenda prima di procedere'
         });
       } else {
         newAdvice.push({
           type: 'success',
-          message: 'Cloro libero nella norma per chiusura (1-5 mg/l)'
+          message: 'Cloro shock nella norma per chiusura (2-6 ppm)'
         });
       }
     }
 
     if (redox > 0) {
-      if (redox < 650) {
+      if (redox < 680) {
         newAdvice.push({
           type: 'warning',
-          message: 'Potenziale redox basso. Aumentare la disinfezione prima della chiusura'
+          message: 'Potenziale redox basso. Aumentare la disinfezione per portare il valore a 700 mV'
         });
-      } else if (redox > 750) {
+      } else if (redox > 720) {
         newAdvice.push({
           type: 'info',
           message: 'Potenziale redox alto. Disinfezione efficace per la chiusura'
@@ -312,18 +324,19 @@ const ChiusuraInvernale = () => {
       } else {
         newAdvice.push({
           type: 'success',
-          message: 'Potenziale redox nella norma (650-750 mV)'
+          message: 'Potenziale redox nella norma (680-720 mV)'
         });
       }
     }
 
     if (sale > 0) {
-      if (sale < 2000) {
+      if (sale < 4) {
+        const saleDaAggiungere = (4 - sale) * volume; // kg di sale da aggiungere
         newAdvice.push({
           type: 'info',
-          message: 'Concentrazione sale bassa. Non critica per la chiusura invernale'
+          message: `Concentrazione sale bassa. Aggiungere ${Math.round(saleDaAggiungere * 100) / 100} kg di sale per portare a 4 kg/m³ (non critico per chiusura)`
         });
-      } else if (sale > 6000) {
+      } else if (sale > 4) {
         newAdvice.push({
           type: 'warning',
           message: 'Concentrazione sale troppo alta. Considerare diluizione'
@@ -331,13 +344,13 @@ const ChiusuraInvernale = () => {
       } else {
         newAdvice.push({
           type: 'success',
-          message: 'Concentrazione sale nella norma (2000-6000 mg/l)'
+          message: 'Concentrazione sale nella norma (4 kg/m³)'
         });
       }
     }
 
     if (acidoCianurico > 0) {
-      if (acidoCianurico > 50) {
+      if (acidoCianurico > 80) {
         newAdvice.push({
           type: 'warning',
           message: 'Acido cianurico troppo alto. Considerare diluizione o sequestrante'
@@ -350,7 +363,7 @@ const ChiusuraInvernale = () => {
       } else {
         newAdvice.push({
           type: 'success',
-          message: 'Acido cianurico nella norma (20-50 mg/l)'
+          message: 'Acido cianurico nella norma (20-80 mg/l)'
         });
       }
     }
@@ -466,12 +479,12 @@ const ChiusuraInvernale = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Cloro libero (mg/l)"
+                                        label="Cloro libero (ppm)"
                   type="number"
                   inputProps={{ step: 0.1, min: 0 }}
                   value={waterData.cloro}
                   onChange={(e) => handleWaterDataChange('cloro', e.target.value)}
-                  helperText="Valore ideale per chiusura: 1-5"
+                  helperText="Valore ideale per chiusura: 1-5 ppm"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -482,12 +495,12 @@ const ChiusuraInvernale = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Sale (mg/l)"
+                                        label="Sale (kg/m³)"
                   type="number"
-                  inputProps={{ step: 100, min: 0 }}
+                                      inputProps={{ step: 0.1, min: 0 }}
                   value={waterData.sale}
                   onChange={(e) => handleWaterDataChange('sale', e.target.value)}
-                  helperText="Valore ideale: 2000-6000"
+                  helperText="Valore ideale: 3-5 kg/m³"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,
@@ -551,7 +564,7 @@ const ChiusuraInvernale = () => {
                   inputProps={{ step: 5, min: 0 }}
                   value={waterData.acidoCianurico}
                   onChange={(e) => handleWaterDataChange('acidoCianurico', e.target.value)}
-                  helperText="Valore ideale: 20-50"
+                  helperText="Valore ideale: 20-80 mg/l"
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 2,

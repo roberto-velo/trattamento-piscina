@@ -23,8 +23,7 @@ import {
   PlayArrow,
   Pause,
   Warning,
-  CheckCircle,
-  Error
+  CheckCircle
 } from '@mui/icons-material';
 
 const TrattamentoPhCloro = () => {
@@ -170,7 +169,7 @@ const TrattamentoPhCloro = () => {
 
                 <Box mb={3}>
                   <Typography variant="subtitle1" gutterBottom>
-                    Target Cloro: {cloroTarget} mg/l
+                    Target Cloro: {cloroTarget} ppm
                   </Typography>
                   <Slider
                     value={cloroTarget}
@@ -227,7 +226,7 @@ const TrattamentoPhCloro = () => {
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                     <Typography variant="body2">Cloro Attuale</Typography>
                     <Chip 
-                      label={`${cloroValue.toFixed(1)} mg/l`} 
+                      label={`${cloroValue.toFixed(1)} ppm`} 
                       color={Math.abs(cloroValue - cloroTarget) <= 0.2 ? "success" : "warning"}
                       size="small"
                     />
