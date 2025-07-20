@@ -148,7 +148,7 @@ const TrattamentoPhSale = () => {
     if (cloro > 0) {
       if (cloro < 1) {
         problemi.push('Cloro insufficiente');
-        correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round((1 - cloro) * 0.2 * volume * 100) / 100} kg di cloro granulare per portare a 1 ppm`);
+        correzioni.push(`Aumentare la produzione di cloro dalla cella elettrolitica o aggiungere ${Math.round((1 - cloro) * 1.5 * volume * 100) / 100} mg di cloro granulare per portare a 1 ppm`);
         problemiBagnanti.push('Rischio di infezioni batteriche');
         problemiPiscina.push('Formazione di alghe');
       } else if (cloro > 1) {
