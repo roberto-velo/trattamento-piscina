@@ -129,14 +129,14 @@ const TrattamentoPhSale = () => {
     if (ph > 0) {
       if (ph < 7.3) {
         // pH+ polvere: 10g per mc per aumentare di 0.1
-        phPlus = (7.3 - ph) * 0.1 * volume;
+        phPlus = (7.3 - ph) * 10 * volume / 1000; // 10 g/mc per 0.1 unità, convertito in kg
         problemi.push('pH troppo basso (acido)');
         correzioni.push(`Aggiungere ${Math.round(phPlus * 100) / 100} kg di pH+ polvere (carbonato di sodio) per portare a 7.3`);
         problemiBagnanti.push('Irritazione agli occhi e alla pelle');
         problemiPiscina.push('Corrosione delle parti metalliche');
       } else if (ph > 7.3) {
         // pH- polvere: 10g per mc per diminuire di 0.1
-        phMinus = (ph - 7.3) * 0.1 * volume;
+        phMinus = (ph - 7.3) * 10 * volume / 1000; // 10 g/mc per 0.1 unità, convertito in kg
         problemi.push('pH troppo alto (basico)');
         correzioni.push(`Aggiungere ${Math.round(phMinus * 100) / 100} kg di pH- polvere per portare a 7.3. Se pH liquido, usare acido solforico, non acido citrico perché mangia il cloro`);
         problemiBagnanti.push('Formazione di incrostazioni sulla pelle');

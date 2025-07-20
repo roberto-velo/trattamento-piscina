@@ -182,10 +182,10 @@ const AperturaEstiva = () => {
     if (ph > 0) {
       if (ph < 7.3) {
         // pH+ polvere: 10g per mc per aumentare di 0.1
-        phPlus = (7.3 - ph) * 0.1 * volume;
+        phPlus = (7.3 - ph) * 10 * volume / 1000; // 10 g/mc per 0.1 unità, convertito in kg
       } else if (ph > 7.3) {
         // pH- polvere: 10g per mc per diminuire di 0.1
-        phMinus = (ph - 7.3) * 0.1 * volume;
+        phMinus = (ph - 7.3) * 10 * volume / 1000; // 10 g/mc per 0.1 unità, convertito in kg
       }
     }
 
