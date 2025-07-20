@@ -182,15 +182,15 @@ const ChiusuraInvernale = () => {
     // Calcolo pH per chiusura con pH polvere (target: 7.3)
     if (ph > 0) {
       if (ph < 7.3) {
-        // pH+ polvere: 10g per mc per aumentare di 0.1 unità
+        // pH+ polvere: 1g per mc per aumentare di 0.1 unità
         const differenzaPh = 7.3 - ph;
         const unitaDaCorreggere = differenzaPh / 0.1; // quante unità di 0.1 devo correggere
-        phPlus = unitaDaCorreggere * 10 * volume / 1000; // 10 g/mc per 0.1 unità, convertito in kg
+        phPlus = unitaDaCorreggere * 1 * volume / 1000; // 1 g/mc per 0.1 unità, convertito in kg
       } else if (ph > 7.3) {
-        // pH- polvere: 10g per mc per diminuire di 0.1 unità
+        // pH- polvere: 1g per mc per diminuire di 0.1 unità
         const differenzaPh = ph - 7.3;
         const unitaDaCorreggere = differenzaPh / 0.1; // quante unità di 0.1 devo correggere
-        phMinus = unitaDaCorreggere * 10 * volume / 1000; // 10 g/mc per 0.1 unità, convertito in kg
+        phMinus = unitaDaCorreggere * 1 * volume / 1000; // 1 g/mc per 0.1 unità, convertito in kg
       }
     }
 
